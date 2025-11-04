@@ -1,0 +1,8 @@
+
+MODEL_NAME = "qwen3:0.6b"
+
+OLLAMA_BASE_URL = "http://localhost:11434"
+
+AGENT_MAX_ITERATIONS = 8
+
+EVAL_SAMPLE_SIZE = 10
