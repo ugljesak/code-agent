@@ -39,22 +39,17 @@ Here is the test code that checks the function:
 {problem['test']}
 ```
 
-Please analyze the bug, fix the function, and provide **only** the complete, corrected Python function in a single code block.
+Please analyze the bug, fix the function, and provide ONLY the complete, corrected Python function in a single code block.
 """
 
 def check_solution(fixed_code: str, test_code: str) -> tuple[bool, str]:
     if not fixed_code:
         return False, "Agent did not provide any code."
-        
-    full_test_script = f"{fixed_code}\n{test_code}"
     
-    result = run_python_code(full_test_script)
-    
-    # Check if the result indicates success
+    result = run_python_code(f"{fixed_code}\n{test_code}")
+    print(result)
     if "Success" in result:
         return True, "Passed"
-    
-    # If there's any other output, it's a failure (e.g., Traceback)
     return False, result
 
 
@@ -68,8 +63,6 @@ def main():
     except Exception as e:
         print(f"Failed to create agent: {e}")
         return
-    finally:
-        display_graph(agent)
 
     dataset = load_data(sample_size=config.EVAL_SAMPLE_SIZE)
     if dataset is None:

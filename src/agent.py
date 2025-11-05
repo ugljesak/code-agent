@@ -41,14 +41,12 @@ Do not include the test code or any other text in your final response.
 class AgentState(TypedDict):
     messages: Annotated[list, lambda x, y: x + y]
 
-
 def create_llm():
     return ChatOllama(
         model=config.MODEL_NAME,
         base_url=config.OLLAMA_BASE_URL,
         temperature=0.0
     )
-
 
 def create_agent_node(model):
     
@@ -58,10 +56,8 @@ def create_agent_node(model):
     
     return agent_node
 
-
 def create_tool_node(tools):
     return ToolNode(tools=tools)
-
 
 def should_continue(state: AgentState) -> str:
     last_message = state["messages"][-1]
@@ -120,15 +116,12 @@ def display_graph(agent):
 
 
 def parse_final_code(llm_response: str) -> str:
-    """
-    Extracts the Python code block from the LLM's final response.
-    """
+    
+    # for case that it has markdown format
     match = re.search(r"```python\n(.*?)```", llm_response, re.DOTALL)
     if match:
         return match.group(1).strip()
     
-    # Fallback: If no markdown block, assume the entire response is code
-    # (this is less reliable but helpful for small models)
     if "def " in llm_response:
         return llm_response.strip()
         
