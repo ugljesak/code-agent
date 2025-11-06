@@ -3,7 +3,7 @@ from typing import Annotated, List
 
 from langchain_core.tools import Tool
 from langchain_ollama import ChatOllama
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
@@ -35,8 +35,8 @@ Here is your plan:
         # ... corrected logic ...
         return result
     ```
-Do not include the test code or any other text in your final response.
-"""
+Do not include the test code or any other text in your final response."""
+
 
 class AgentState(TypedDict):
     messages: Annotated[list, lambda x, y: x + y]
@@ -45,7 +45,7 @@ def create_llm():
     return ChatOllama(
         model=config.MODEL_NAME,
         base_url=config.OLLAMA_BASE_URL,
-        temperature=0.0
+        temperature=0.0,
     )
 
 def create_agent_node(model):
@@ -93,18 +93,17 @@ def create_agent():
     return graph.compile()
 
 
-def run_agent(model, prompt: str) -> str:
+def run_agent(agent, prompt: str) -> str:
 
     messages = [
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=prompt)
     ]
     
-    inputs = {"messages": messages}
-    
     try:
-        final_state = model.invoke(inputs, config={"recursion_limit": config.AGENT_MAX_ITERATIONS})
-        return final_state["messages"][-1].content
+        final_state = agent.invoke({"messages": messages})
+        
+        return final_state[-1].content
     except Exception as e:
         return f"Error during agent execution: {e}"
 
@@ -112,12 +111,14 @@ def run_agent(model, prompt: str) -> str:
 def display_graph(agent):
     
     from IPython.display import Image, display
-    display(Image(agent.get_graph().draw_mermaid_png()))
+    img = Image(agent.get_graph().draw_mermaid_png())
+    with open("results/agent_graph.png", "wb") as png:
+            png.write(img.data)
 
 
 def parse_final_code(llm_response: str) -> str:
     
-    # for case that it has markdown format
+    # if it's in markdown format
     match = re.search(r"```python\n(.*?)```", llm_response, re.DOTALL)
     if match:
         return match.group(1).strip()

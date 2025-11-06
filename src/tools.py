@@ -1,13 +1,5 @@
-import docker
 from docker.errors import ContainerError, ImageNotFound, APIError
 from langchain.tools import tool
-
-try:
-    docker_client = docker.from_env()
-except APIError:
-    print("Error: Docker daemon is not running.")
-    print("Please start Docker Desktop and try again.")
-    exit(1)
 
 @tool
 def run_python_code(code: str) -> str:
@@ -32,13 +24,22 @@ def run_python_code(code: str) -> str:
         A string containing stdout and stderr from the execution,
         or 'Success' if execution is successful with no output.
     """
+    print("First")
+    try:
+        import docker
+        docker_client = docker.from_env()
+    except APIError:
+        print("Error: Docker daemon is not running.")
+        print("Please start Docker Desktop and try again.")
+        return "Error: Docker not working."
+    print("Second")
     try:
         container = docker_client.containers.run(
             image="python:3.11-slim",
-            command=["python", "-c", code],
-            remove=True,  # Automatically remove the container on exit
-            stderr=True,  # Capture standard error
-            stdout=True,  # Capture standard output
+            command=["python", "-c", code],  
+            remove=True,
+            stderr=True,
+            stdout=True,
             detach=False
         )
         

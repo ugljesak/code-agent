@@ -60,6 +60,8 @@ def main():
     print("Initializing agent graph...")
     try:
         agent = create_agent()
+        display_graph(agent)
+        
     except Exception as e:
         print(f"Failed to create agent: {e}")
         return
